@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 
 function Calculator() {
   const [input, setInput] = useState("");
+  const [error, setError] = useState("");
 
   const InputRef = useRef("");
   const OperatorRef = useRef("");
@@ -11,9 +12,14 @@ function Calculator() {
   }
 
   function handleOperator(opr) {
+    if (input === "") {
+      setError("Please enter a number first");
+      return;
+    }
     InputRef.current = input;
     setInput("");
     OperatorRef.current = opr;
+    setError("");
   }
   function handleCalculate() {
     const firstVal = InputRef.current;
@@ -21,17 +27,37 @@ function Calculator() {
     const secondVal = input;
     let result = 0;
 
+    if (firstVal === "" || secondVal === "") {
+      setError("Please complete the operation");
+    }
+
     switch (oprVal) {
       case "+":
+        if (Number(secondVal) === "") {
+          setError("Invalid format");
+          return;
+        }
         result = Number(firstVal) + Number(secondVal);
         break;
       case "-":
+        if (Number(secondVal) === "") {
+          setError("Invalid format");
+          return;
+        }
         result = Number(firstVal) - Number(secondVal);
         break;
       case "*":
+        if (Number(secondVal) === "") {
+          setError("Invalid format");
+          return;
+        }
         result = Number(firstVal) * Number(secondVal);
         break;
       case "/":
+        if (Number(secondVal) === 0) {
+          setError("Cannot divide by zero");
+          return;
+        }
         result = Number(firstVal) / Number(secondVal);
         break;
       case "%":
@@ -39,24 +65,25 @@ function Calculator() {
         break;
 
       default:
-        result = "Error";
+        setError("Invalid");
+        return;
     }
 
     setInput(result);
+    setError("");
   }
   function handleClear() {
     setInput("");
   }
 
   function handleToggle() {
-    setInput((prevInput) =>
-      prevInput.startsWith("-") ? prevInput.slice(1) : "-" + prevInput
-    );
+    setInput((prevInput) => prevInput * -1);
   }
   return (
     <div className="calculator">
       <div className="display">
         <input type="text" value={input} />
+        {error && <div>{error}</div>}
       </div>
       <div className="buttons">
         <button onClick={() => handleClear("C")}>C</button>
